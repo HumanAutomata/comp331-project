@@ -14,10 +14,10 @@ from sklearn.impute import IterativeImputer
 # ==========================================
 
 
-project_root = Path(__file__).resolve().parents[2]
+dataset_folder = Path(__file__).resolve().parent
 
 data = pd.read_csv(
-    project_root / "data" / "assistments_matrix.csv",
+    dataset_folder / "assistments_matrix.csv",
     index_col=0
 )
 
@@ -298,7 +298,7 @@ for seed in SEEDS:
 results_df = pd.DataFrame(results)
 
 results_df.to_csv(
-    project_root / "results" / "assistments_final_all_results.csv",
+    dataset_folder / "assistments_final_all_results.csv",
     index=False
 )
 
@@ -327,7 +327,7 @@ summary = summary.sort_values(
 
 
 summary.to_csv(
-    project_root / "results" / "assistments_final_summary.csv"
+    dataset_folder / "assistments_final_summary.csv"
 )
 
 
