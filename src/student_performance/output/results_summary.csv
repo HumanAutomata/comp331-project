@@ -1,0 +1,5 @@
+,nRMSE mean,nRMSE std,nMAE mean,nMAE std
+column mean,1.004,0.029,0.814,0.018
+item-CF (PCC),0.922,0.033,0.696,0.025
+user-CF (PCC),0.984,0.033,0.736,0.025
+MICE,0.894,0.03,0.684,0.021

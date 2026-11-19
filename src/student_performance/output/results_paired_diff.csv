@@ -1,0 +1,4 @@
+,mean diff,std diff,wins
+column mean,0.1102,0.0192,0.0
+item-CF (PCC),0.0285,0.0111,0.0
+user-CF (PCC),0.0902,0.0179,0.0
