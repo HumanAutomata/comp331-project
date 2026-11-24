@@ -1,0 +1,22 @@
+=== Random masking: 150 flowers x 7 cols, 3% of cells hidden, 30 repeats (errors in column-std units) ===
+               nRMSE mean  nRMSE std  nMAE mean  nMAE std
+column mean         0.987      0.067      0.877     0.064
+item-CF (PCC)       0.558      0.101      0.423     0.080
+user-CF (PCC)       0.389      0.110      0.224     0.072
+MICE                0.312      0.106      0.175     0.060
+
+=== Paired nRMSE difference vs MICE (negative = better than MICE) ===
+               mean diff  std diff  wins
+column mean       0.6746    0.1143   0.0
+item-CF (PCC)     0.2452    0.0967   1.0
+user-CF (PCC)     0.0768    0.0644   3.0
+
+=== Per-column nRMSE (1.0 = no better than predicting the mean) ===
+                    column mean  item-CF (PCC)  user-CF (PCC)   MICE  item-CF minus MICE  user-CF minus MICE
+petal length (cm)         1.032          0.247          0.261  0.160               0.086               0.100
+petal width (cm)          1.044          0.319          0.264  0.209               0.110               0.056
+sepal length (cm)         0.863          0.511          0.466  0.399               0.112               0.067
+species_setosa            1.006          0.362          0.276  0.122               0.240               0.153
+sepal width (cm)          0.996          0.860          0.695  0.616               0.245               0.079
+species_virginica         0.980          0.559          0.199  0.149               0.410               0.050
+species_versicolor        0.982          0.671          0.315  0.168               0.504               0.147
