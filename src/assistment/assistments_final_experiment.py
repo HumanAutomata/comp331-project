@@ -1,4 +1,3 @@
-
 import warnings
 from pathlib import Path
 
@@ -29,6 +28,15 @@ K = 10
 
 results = []
 
+# Per-skill standard deviation of the observed values, used to normalize errors
+# (same definition as main.py: errors in units of each column's std).
+# Columns with zero (or undefined) std are given a std of 1 so nothing divides by 0.
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    column_std = np.nanstd(matrix, axis=0)
+
+column_std[~np.isfinite(column_std) | (column_std == 0)] = 1.0
+
 print("Dataset shape:", matrix.shape, flush=True)
 print("Observed values:", np.isfinite(matrix).sum(), flush=True)
 
@@ -37,13 +45,22 @@ print("Observed values:", np.isfinite(matrix).sum(), flush=True)
 # STEP 2: EVALUATION FUNCTIONS
 # ==========================================
 
-def calculate_scores(actual, predicted):
+def calculate_scores(actual, predicted, hidden_skills):
     predicted = np.clip(np.asarray(predicted), 0, 1)
 
-    mae = np.mean(np.abs(actual - predicted))
-    rmse = np.sqrt(np.mean((actual - predicted) ** 2))
+    errors = actual - predicted
 
-    return float(mae), float(rmse)
+    mae = np.mean(np.abs(errors))
+    rmse = np.sqrt(np.mean(errors ** 2))
+
+    # Normalized: each error is divided by the std of its own skill column,
+    # so 1.0 means "no better than predicting the column mean".
+    scaled_errors = errors / column_std[hidden_skills]
+
+    nmae = np.mean(np.abs(scaled_errors))
+    nrmse = np.sqrt(np.mean(scaled_errors ** 2))
+
+    return float(mae), float(rmse), float(nmae), float(nrmse)
 
 
 # ==========================================
@@ -261,9 +278,10 @@ for seed in SEEDS:
 
     for method, predicted in predictions.items():
 
-        mae, rmse = calculate_scores(
+        mae, rmse, nmae, nrmse = calculate_scores(
             actual,
-            predicted
+            predicted,
+            positions[:, 1]
         )
 
         results.append({
@@ -272,13 +290,17 @@ for seed in SEEDS:
             "Method": method,
             "MAE": mae,
             "RMSE": rmse,
+            "nMAE": nmae,
+            "nRMSE": nrmse,
             "Hidden": count
         })
 
         print(
             f"{method}: "
             f"MAE={mae:.4f}, "
-            f"RMSE={rmse:.4f}",
+            f"RMSE={rmse:.4f}, "
+            f"nMAE={nmae:.4f}, "
+            f"nRMSE={nrmse:.4f}",
             flush=True
         )
 
@@ -309,7 +331,7 @@ results_df.to_csv(
 
 summary = (
     results_df
-    .groupby("Method")[["MAE", "RMSE"]]
+    .groupby("Method")[["MAE", "RMSE", "nMAE", "nRMSE"]]
     .agg(["mean", "std"])
     .round(4)
 )
@@ -318,7 +340,11 @@ summary.columns = [
     "MAE_Mean",
     "MAE_Std",
     "RMSE_Mean",
-    "RMSE_Std"
+    "RMSE_Std",
+    "nMAE_Mean",
+    "nMAE_Std",
+    "nRMSE_Mean",
+    "nRMSE_Std"
 ]
 
 summary = summary.sort_values(
